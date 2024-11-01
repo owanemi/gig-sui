@@ -24,7 +24,44 @@ module hello_world::hello_world {
         obj.text
     }
 
-    public fun add(x: u64, y: u64): u64 {
-        return x + y
+    public fun add(x: &mut u64, y: &mut u64): u64 {
+        return *x + *y
     }
+}
+
+// module car::shop {
+//     use::sui::object::{Self, UID};
+//     use::sui::transfer;
+//     use::sui::tx_context::{Self, TxContext};
+//     use::sui::dynamic_object_field as ofield;
+//     use::std::string::{Self, String};
+//     use::std::option::{Self, Option};
+
+//     struct ShopAdminCap has key {id: UID}
+
+//     struct Tesla has key {
+//         id: UID,
+//         type: String,
+//         speed: u32,
+//         autopilot: Option<Autopilot>
+//     }
+
+//     struct Autopilot has key, store {
+//         id: UID,
+//         level: u32
+//     }
+//     /*
+//         QUESTION (1): An admin role that can create shop, car and autopilot objects 
+//     */
+
+// }
+
+struct Hero has key, store {
+    id: UID,
+    weapon: Option<Weapon>
+}
+
+struct Weapon has key, store {
+    id: UID,
+    damage: u64
 }

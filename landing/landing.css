@@ -1,4 +1,5 @@
 /* grasso website and meet the technical guy to look at it */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 body {
     justify-content: center;
     box-sizing: border-box;
@@ -9,7 +10,7 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: sans-serif;
+    font-family: "Nunito", serif;
 }
 
 .absolute{
@@ -90,26 +91,109 @@ body {
 .container > .logo-container {
     display: flex;
     justify-content: flex-start;
+    /* align-items: center */
     width: 450px;
+    /* height: 50px; */
     /* border: 1px solid green; */
+}
+
+.in-logo{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* border: 1px solid orange; */
+    margin-left: 100px;
+    width: 50px;
+}
+img{
+    width: 50px;
+    height: auto;
 }
 
 .container > .link-container {
     display: flex;
     width: 450px;
     justify-content: space-between;
+    align-self: center;
     /* border: 1px solid blue; */
 }
 
 .container > .button-container {
     display: flex;
     width: 450px;
-    justify-content: end;
+    justify-content: flex-end;
+    align-items: center;
     /* border: 1px solid purple; */
     gap: 10px;
 }
 
-/* .body {
+.login-button {
+    padding: 10px;
+    border-radius: 15px;
+    border: none;
+    width: 80px;
+}
+
+.reg-button {
+    padding: 10px;
+    border-radius: 15px;
+    border: none;
+    width: 100px;
+    background-color: #4da2ff;
+}
+
+.hero-section {
+    /* border: 1px solid red; */
     display: flex;
     justify-content: center;
-} */
+    align-items: center;
+    margin-top: 50px;
+}
+
+.hero-section h1{
+    font-size: 52px;
+    font-weight: 300;
+}
+
+.hero-2 {
+    /* border: 1px solid red; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* margin-top: 50px; */
+}
+
+.hero-2 h1{
+    font-size: 70px;
+    font-weight: 400;
+}
+
+.hero-3 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    /* border: 1px solid red; */
+}
+
+.hero-3 p {
+    font-size: 18px;
+}
+
+.start-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    /* border: 1px solid red; */
+}
+
+.start-container button {
+    padding: 10px;
+    border-radius: 15px;
+    border: none;
+    width: 150px;
+    height: 50px;
+    background-color: #4da2ff;
+    font-weight: 800;
+}

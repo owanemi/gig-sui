@@ -11,5 +11,10 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@mysten/sui": "^1.14.1",
+    "@mysten/sui.js": "^0.54.1",
+    "@mysten/wallet-kit": "^0.8.6"
+  }
 }

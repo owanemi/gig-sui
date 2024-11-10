@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (response.ok) {
                 alert('Job posted successfully!');
                 jobForm.reset();
-                window.location.href = '/home.html';
+                window.location.href = '/home/home.html';
             } else {
                 throw new Error('Failed to post job');
             }

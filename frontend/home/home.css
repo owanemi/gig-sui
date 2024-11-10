@@ -94,7 +94,7 @@ body {
 .greeting-container {
     margin: 20px 0; /* removed auto margins for full width */
     display: flex;
-    width: 80%;
+    width: 77%;
     height: 150px;
     color: white;
     background: linear-gradient(to right, 

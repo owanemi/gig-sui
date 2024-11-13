@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/gig-sui/static/css/main.bfbb9328.css",
+    "main.js": "/gig-sui/static/js/main.ff34a1a1.js",
+    "static/media/team_photo.jpg": "/gig-sui/static/media/team_photo.d2485b1fdc15e38e57d2.jpg",
+    "static/media/transparent2.png": "/gig-sui/static/media/transparent2.185006215b5e15fb8fc1.png",
+    "static/media/comm_man.jpg": "/gig-sui/static/media/comm_man.00b19e11cb3aa41b6572.jpg",
+    "static/media/tech_writer.jpg": "/gig-sui/static/media/tech_writer.cf43b9f656873852ca67.jpg",
+    "static/media/graphic_designer.jpg": "/gig-sui/static/media/graphic_designer.8854ab54302c9714a276.jpg",
+    "static/media/team_lead.jpg": "/gig-sui/static/media/team_lead.06b330bef52495fb5403.jpg",
+    "index.html": "/gig-sui/index.html",
+    "main.bfbb9328.css.map": "/gig-sui/static/css/main.bfbb9328.css.map",
+    "main.ff34a1a1.js.map": "/gig-sui/static/js/main.ff34a1a1.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.bfbb9328.css",
+    "static/js/main.ff34a1a1.js"
+  ]
+}

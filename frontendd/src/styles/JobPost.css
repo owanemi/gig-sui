@@ -1,0 +1,130 @@
+/* JobPost.css */
+.post-page-wrapper {
+    min-height: 100vh;
+    background: rgb(239, 232, 232);
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    font-family: "Nunito", serif;
+}
+
+.post-page-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.job-post-form {
+    background: white;
+    padding: 32px;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #eee;
+}
+
+.job-post-form h2 {
+    color: #333;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 24px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-size: 14px;
+    color: #333;
+    transition: all 0.3s ease;
+    font-family: "Nunito", serif;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #577dff;
+    box-shadow: 0 0 0 2px rgba(87, 125, 255, 0.1);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #999;
+}
+
+.form-group textarea {
+    min-height: 200px;
+    resize: vertical;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.submit-btn {
+    background: #577dff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background: #4565cc;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .post-page-wrapper {
+        padding: 20px;
+    }
+
+    .job-post-form {
+        padding: 24px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+}
+
+/* Add basic input validation styling */
+.form-group input:invalid:not(:placeholder-shown),
+.form-group select:invalid,
+.form-group textarea:invalid:not(:placeholder-shown) {
+    border-color: #ff5757;
+}
+
+/* Optional: Add a subtle animation for form submission */
+.submit-btn:active {
+    transform: translateY(1px);
+}

@@ -29,7 +29,7 @@ module gig_contracts::gig_contracts {
         amount: u64,
     }
 
-public fun deposit(coin: Coin<SUI>, ctx: &mut TxContext) {
+public entry fun deposit(coin: Coin<SUI>, ctx: &mut TxContext) {
     let value = coin::value(&coin);
     let depositor = tx_context::sender(ctx);
     let user_pay = UserPay { id: object::new(ctx), balance: value, depositor };
@@ -46,7 +46,7 @@ public fun deposit(coin: Coin<SUI>, ctx: &mut TxContext) {
 
 
 
-    public fun withdraw(user_pay: &mut UserPay, treasury_cap: &mut TreasuryCap<SUI>, ctx: &mut TxContext) {
+    public entry fun withdraw(user_pay: &mut UserPay, treasury_cap: &mut TreasuryCap<SUI>, ctx: &mut TxContext) {
         let sender = tx_context::sender(ctx);
         assert!(sender == user_pay.depositor, 0); // Use an error code instead of a string
 
@@ -59,7 +59,7 @@ public fun deposit(coin: Coin<SUI>, ctx: &mut TxContext) {
         event::emit(WithdrawEvent { withdrawer: sender, amount: balance });
     }
 
-    public fun transfer(user_pay: &mut UserPay, recipient: address, treasury_cap: &mut TreasuryCap<SUI>, ctx: &mut TxContext) {
+    public entry fun transfer(user_pay: &mut UserPay, recipient: address, treasury_cap: &mut TreasuryCap<SUI>, ctx: &mut TxContext) {
         let sender = tx_context::sender(ctx);
         assert!(sender == user_pay.depositor, 0); // Use an error code instead of a string
 

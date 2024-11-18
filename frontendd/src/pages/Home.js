@@ -85,7 +85,7 @@ const Home = () => {
               </div>
               <div className="job-description">{job.description}</div>
               <div className="job-footer">
-                <div className="salary">${job.salary}</div>
+                <div className="salary">$SUI {job.basePay}</div>
                 <button className="apply-btn">Apply Now</button>
               </div>
             </div>

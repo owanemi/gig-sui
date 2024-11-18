@@ -1,251 +1,277 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 
-body {
-    background: rgb(239, 232, 232);
-}
-
+/* Base styles */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Nunito", serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Nunito", serif;
 }
 
+/* Navbar styles */
 .navbar-container {
-    display: flex;
-    color: gray;
-    justify-content: space-between;
-    border-bottom: 1px solid gray;
-    padding: 20px;
-    height: 50px;
-    background: white;
-    align-items: center;
+  margin: 20px auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-radius: 30px;
+  background: white;
+  height: 90px;
+  max-width: 1300px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .left-stuff {
-    flex: 1;
-    display: flex;
-    align-items: center;
+  flex: 1;
 }
 
 .middle-stuff {
-    display: flex;
-    flex: 1;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .right-stuff {
-    display: flex;
-    flex: 1;
-    justify-content: flex-end;
-    align-items: center;
-}
-
-.profile-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.nav-link {
-    text-decoration: none;
-    color: gray;
-    cursor: pointer;
-    padding: 5px 10px;
-    transition: color 0.3s ease;
-}
-
-.nav-link:hover {
-    color: #577dff;
-}
-
-.nav-link.active {
-    color: #577dff;
-    font-weight: 500;
-}
-
-.wallet-address {
-    color: gray;
-    font-size: 0.75em;
-    opacity: 0.8;
-    padding: 0 10px;
-}
-
-.logo-link {
-    text-decoration: none;
-    display: flex;
-    align-items: center;
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
 }
 
 .logo {
-    height: 65px;
-    width: auto;
-    margin-right: 20px;
-    margin-top: -8px;
+  height: 65px;
+  width: auto;
+  margin-top: -8px;
 }
 
+.logo-link {
+  text-decoration: none;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: gray;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.3s ease;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.nav-link:hover {
+  color: #577dff;
+  background: #f5f5f5;
+}
+
+/* Profile Info Styles */
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.wallet-address {
+  font-size: 14px;
+  color: #666;
+  padding: 5px 10px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.connect-prompt {
+  color: #ff4d4d;
+}
+
+/* Greeting Section Styles */
 .greeting-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  max-width: 1300px;
+  margin: 40px auto;
+  padding: 0 20px;
 }
 
 .greeting-container {
-    margin: 20px 0;
-    display: flex;
-    width: 77%;
-    height: 150px;
-    color: white;
-    background: linear-gradient(to right, 
-        #577dff,
-        #7091fe,
-        #8ca6ff
-    );
-    border-radius: 30px;
-    align-items: center;
-}
-
-.greeting-text {
-    color: white;
-    margin-left: 40px;
+  background: linear-gradient(45deg, #4da2ff, #577dff);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .greeting-text h1 {
-    margin: 0;
-    margin-bottom: 8px;
-    font-size: 32px;
-    font-weight: 600;
-    text-align: left;
+  font-size: 32px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 10px;
 }
 
 .greeting-text p {
-    margin: 0;
-    font-size: 20px;
-    opacity: 0.9;
-    text-align: left;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
 }
 
+/* Job Cards Section */
 .job-cards-container {
-    display: flex;
-    gap: 20px;
-    padding: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-    margin: 0 auto;
+  max-width: 1300px;
+  margin: 40px auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
 
 .job-card {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    width: 300px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border: 1px solid #eee;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .job-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(77, 162, 255, 0.2);
 }
 
 .job-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
 }
 
 .job-details {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
 }
 
 .job-type, .job-location {
-    background: #f5f7ff;
-    color: #577dff;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 14px;
+  font-size: 14px;
+  color: #666;
+  background: #f5f5f5;
+  padding: 5px 12px;
+  border-radius: 8px;
 }
 
 .job-description {
-    color: #666;
-    font-size: 14px;
-    line-height: 1.5;
-    margin-bottom: 20px;
+  font-size: 15px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .job-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
 }
 
 .salary {
-    color: #333;
-    font-weight: 500;
+  font-size: 18px;
+  font-weight: 600;
+  color: #4da2ff;
+  margin-right: 15px; /* Add spacing between salary and button */
 }
 
 .apply-btn {
-    background: #577dff;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: background 0.2s ease;
+  min-width: 120px; /* Ensure consistent button width */
+  padding: 8px 20px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(45deg, #4da2ff, #577dff);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .apply-btn:hover {
-    background: #4565cc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(77, 162, 255, 0.3);
 }
 
-/* Make form responsive */
-@media (max-width: 600px) {
-    .form-row {
-        flex-direction: column;
-        gap: 0;
-    }
+/* Mobile Navigation Menu */
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
 }
 
-/* Add these to your existing Home.css file */
-
-.wallet-address {
-    color: gray;
-    font-size: 0.75em;
-    opacity: 0.8;
-    padding: 0 10px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .navbar-container {
+    margin: 10px 20px;
+  }
+  
+  .job-cards-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.wallet-address.connect-prompt {
-    color: #577dff;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
+@media (max-width: 768px) {
+  .middle-stuff {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+  
+  .navbar-container {
+    padding: 15px;
+    height: 70px;
+    margin: 10px;
+  }
+
+  .greeting-text h1 {
+    font-size: 28px;
+  }
+  
+  .greeting-text p {
+    font-size: 16px;
+  }
+  
+  .job-cards-container {
+    grid-template-columns: 1fr;
+  }
+
+  .logo {
+    height: 50px;
+  }
 }
 
-.wallet-address.connect-prompt:hover {
-    opacity: 1;
-}
+@media (max-width: 480px) {
+  .greeting-text h1 {
+    font-size: 24px;
+  }
+  
+  .job-card {
+    padding: 20px;
+  }
+  
+  .job-title {
+    font-size: 18px;
+  }
 
-/* Optional: Add a small indicator dot for connection status */
-.wallet-address::before {
-    content: '';
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background-color: #4CAF50;  /* Green for connected */
-    margin-right: 5px;
-}
+  .right-stuff {
+    gap: 10px;
+  }
 
-.wallet-address.connect-prompt::before {
-    background-color: #FFA500;  /* Orange for not connected */
+  .wallet-address {
+    font-size: 12px;
+  }
 }

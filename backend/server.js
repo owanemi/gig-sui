@@ -33,13 +33,14 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = path.join(__dirname, 'uploads', 'resumes');
-        // Create directory if it doesn't exist
+        // Ensure directory exists
         fs.mkdirSync(uploadDir, { recursive: true });
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
-        // Generate unique filename
-        cb(null, `application_${Date.now()}_${file.originalname}`);
+        // Generate a unique filename
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
 });
 
@@ -158,6 +159,12 @@ app.post('/api/apply', upload.single('resumeFile'), (req, res) => {
     const { jobId, walletAddress } = req.body;
     const resumeFile = req.file;
 
+    console.log('Uploaded resume file details:', {
+        originalname: resumeFile.originalname,
+        filename: resumeFile.filename,
+        path: resumeFile.path
+    });
+
     // Validate input
     if (!jobId || !walletAddress || !resumeFile) {
         return res.status(400).json({ error: 'Job ID, wallet address, and resume are required' });
@@ -197,7 +204,9 @@ app.post('/api/apply', upload.single('resumeFile'), (req, res) => {
 });
 
 // NEW ENDPOINT: Fetch Job Applications (for admin/employer use)
-app.get('/api/applications', (req, res) => {
+app.get('/api/applications/:walletAddress', (req, res) => {
+    const { walletAddress } = req.params;
+
     db.all(`
         SELECT 
             ja.id, 
@@ -205,14 +214,21 @@ app.get('/api/applications', (req, res) => {
             ja.wallet_address, 
             ja.resume_path, 
             ja.application_date,
-            j.title AS job_title
+            j.title AS job_title,
+            j.type AS job_type,
+            j.location AS job_location
         FROM job_applications ja
         JOIN jobs j ON ja.job_id = j.id
+        WHERE ja.wallet_address = ?
         ORDER BY ja.application_date DESC
-    `, [], (err, rows) => {
+    `, [walletAddress], (err, rows) => {
         if (err) {
             return res.status(500).json({ error: 'Failed to fetch applications' });
         }
+        
+        // Log the rows to see the exact resume_path
+        console.log('Applications retrieved:', rows);
+        
         res.json(rows);
     });
 });
@@ -222,6 +238,60 @@ app.get('/uploads/resumes/:filename', (req, res) => {
     const filePath = path.join(__dirname, 'uploads', 'resumes', req.params.filename);
     res.download(filePath);
 });
+
+// Add this to your existing server.js file
+
+// NEW ENDPOINT: Get Job Applications for a Specific Wallet Address
+app.get('/api/applications/:walletAddress', (req, res) => {
+    const { walletAddress } = req.params;
+
+    db.all(`
+        SELECT 
+            ja.id, 
+            ja.job_id, 
+            ja.wallet_address, 
+            ja.resume_path, 
+            ja.application_date,
+            j.title AS job_title,
+            j.type AS job_type,
+            j.location AS job_location
+        FROM job_applications ja
+        JOIN jobs j ON ja.job_id = j.id
+        WHERE ja.wallet_address = ?
+        ORDER BY ja.application_date DESC
+    `, [walletAddress], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to fetch applications' });
+        }
+        res.json(rows);
+    });
+});
+
+// Endpoint to download a specific resume
+app.get('/api/resume/:filename', (req, res) => {
+    const { filename } = req.params;
+
+    // Construct full path dynamically
+    const filePath = path.join(__dirname, 'uploads', 'resumes', filename);
+
+    console.log('File requested:', filePath); // Debugging
+
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            console.error('File not found:', filePath);
+            return res.status(404).json({ error: 'Resume not found' });
+        }
+
+        res.download(filePath, filename, (err) => {
+            if (err) {
+                console.error('Error during download:', err);
+                res.status(500).json({ error: 'Error downloading resume' });
+            }
+        });
+    });
+});
+
+
 
 // Start the server
 app.listen(port, () => {

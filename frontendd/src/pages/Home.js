@@ -66,25 +66,36 @@ const Home = () => {
     formData.append('walletAddress', applicationForm.walletAddress);
     formData.append('resumeFile', applicationForm.resumeFile);
 
+    // Log file details
+    console.log('Submitting application with file:', {
+        filename: applicationForm.resumeFile.name,
+        type: applicationForm.resumeFile.type,
+        size: applicationForm.resumeFile.size
+    });
+
     // Send application to backend
     fetch('http://localhost:8080/api/apply', {
       method: 'POST',
       body: formData
     })
     .then(response => {
-      if (response.ok) {
-        alert('Application submitted successfully!');
-        setSelectedJob(null);
-        setApplicationForm({ walletAddress: '', resumeFile: null });
-      } else {
-        alert('Failed to submit application');
+      if (!response.ok) {
+        // Log error response
+        return response.json().then(err => { throw err; });
       }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Application submission response:', data);
+      alert('Application submitted successfully!');
+      setSelectedJob(null);
+      setApplicationForm({ walletAddress: '', resumeFile: null });
     })
     .catch(error => {
       console.error('Error submitting application:', error);
-      alert('Error submitting application');
+      alert('Failed to submit application');
     });
-  };
+};
 
   return (
     <div>

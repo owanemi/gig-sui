@@ -2,7 +2,9 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const path = require('path');
-const cors = require('cors');  // Import CORS package
+const cors = require('cors');
+const multer = require('multer'); // Add multer for file uploads
+const fs = require('fs');
 
 const app = express();
 const port = 8080;  // Port set to 8080 as per your original configuration
@@ -27,6 +29,36 @@ app.use(bodyParser.json());
 // Serve static files (frontend HTML, JS, CSS, etc.)
 app.use(express.static(path.join(__dirname, '../frontend')));
 
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = path.join(__dirname, 'uploads', 'resumes');
+        // Create directory if it doesn't exist
+        fs.mkdirSync(uploadDir, { recursive: true });
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        // Generate unique filename
+        cb(null, `application_${Date.now()}_${file.originalname}`);
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    limits: { 
+        fileSize: 5 * 1024 * 1024 // 5MB file size limit
+    },
+    fileFilter: (req, file, cb) => {
+        // Allow only certain file types
+        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        if (allowedTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid file type. Only PDF and DOC/DOCX are allowed.'));
+        }
+    }
+});
+
 // Create the users table if it doesn't exist
 db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,6 +74,16 @@ db.run(`CREATE TABLE IF NOT EXISTS jobs (
     location TEXT,
     basePay INTEGER,
     description TEXT
+)`);
+
+// Create the job_applications table if it doesn't exist
+db.run(`CREATE TABLE IF NOT EXISTS job_applications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    job_id INTEGER,
+    wallet_address TEXT,
+    resume_path TEXT,
+    application_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(job_id) REFERENCES jobs(id)
 )`);
 
 // POST endpoint to add a new user (for login)
@@ -109,6 +151,76 @@ app.get('/api/jobs', (req, res) => {
         }
         res.json(rows);
     });
+});
+
+// NEW ENDPOINT: Job Application Submission
+app.post('/api/apply', upload.single('resumeFile'), (req, res) => {
+    const { jobId, walletAddress } = req.body;
+    const resumeFile = req.file;
+
+    // Validate input
+    if (!jobId || !walletAddress || !resumeFile) {
+        return res.status(400).json({ error: 'Job ID, wallet address, and resume are required' });
+    }
+
+    // Check if the job exists
+    db.get('SELECT * FROM jobs WHERE id = ?', [jobId], (err, job) => {
+        if (err) {
+            return res.status(500).json({ error: 'Error checking job existence' });
+        }
+
+        if (!job) {
+            return res.status(404).json({ error: 'Job not found' });
+        }
+
+        // Insert application into database
+        const stmt = db.prepare(`
+            INSERT INTO job_applications (job_id, wallet_address, resume_path)
+            VALUES (?, ?, ?)
+        `);
+
+        stmt.run(jobId, walletAddress, resumeFile.path, function(err) {
+            if (err) {
+                // If insertion fails, delete the uploaded file
+                fs.unlinkSync(resumeFile.path);
+                return res.status(500).json({ error: 'Failed to save application' });
+            }
+
+            res.status(200).json({ 
+                message: 'Application submitted successfully',
+                applicationId: this.lastID 
+            });
+        });
+
+        stmt.finalize();
+    });
+});
+
+// NEW ENDPOINT: Fetch Job Applications (for admin/employer use)
+app.get('/api/applications', (req, res) => {
+    db.all(`
+        SELECT 
+            ja.id, 
+            ja.job_id, 
+            ja.wallet_address, 
+            ja.resume_path, 
+            ja.application_date,
+            j.title AS job_title
+        FROM job_applications ja
+        JOIN jobs j ON ja.job_id = j.id
+        ORDER BY ja.application_date DESC
+    `, [], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to fetch applications' });
+        }
+        res.json(rows);
+    });
+});
+
+// Serve uploaded resumes (optional, for admin preview)
+app.get('/uploads/resumes/:filename', (req, res) => {
+    const filePath = path.join(__dirname, 'uploads', 'resumes', req.params.filename);
+    res.download(filePath);
 });
 
 // Start the server

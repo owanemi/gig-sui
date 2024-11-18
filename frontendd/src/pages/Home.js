@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useWallet } from '@suiet/wallet-kit'; // Make sure this import matches your wallet package
+import { useWallet } from '@suiet/wallet-kit';
 import "../styles/Home.css";
 import img from '../assets/transparent2.png';
 
@@ -12,7 +12,12 @@ const addressEllipsis = (address) => {
 
 const Home = () => {
   const [user, setUser] = useState({ name: '' });
-  const [jobData, setJobData] = useState([]); // State to store fetched job data
+  const [jobData, setJobData] = useState([]); 
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [applicationForm, setApplicationForm] = useState({
+    walletAddress: '',
+    resumeFile: null
+  });
   const wallet = useWallet();
 
   useEffect(() => {
@@ -29,11 +34,63 @@ const Home = () => {
       .catch(error => console.error('Error fetching job data:', error));
   }, []);
 
+  // Handle applying to a job
+  const handleApplyClick = (job) => {
+    setSelectedJob(job);
+    
+    // Pre-fill wallet address if connected
+    if (wallet?.account) {
+      setApplicationForm(prev => ({
+        ...prev,
+        walletAddress: wallet.account.address
+      }));
+    }
+  };
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value, files } = e.target;
+    setApplicationForm(prev => ({
+      ...prev,
+      [name]: name === 'resumeFile' ? files[0] : value
+    }));
+  };
+
+  // Submit job application
+  const handleSubmitApplication = (e) => {
+    e.preventDefault();
+    
+    // Create FormData to send file
+    const formData = new FormData();
+    formData.append('jobId', selectedJob.id);
+    formData.append('walletAddress', applicationForm.walletAddress);
+    formData.append('resumeFile', applicationForm.resumeFile);
+
+    // Send application to backend
+    fetch('http://localhost:8080/api/apply', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      if (response.ok) {
+        alert('Application submitted successfully!');
+        setSelectedJob(null);
+        setApplicationForm({ walletAddress: '', resumeFile: null });
+      } else {
+        alert('Failed to submit application');
+      }
+    })
+    .catch(error => {
+      console.error('Error submitting application:', error);
+      alert('Error submitting application');
+    });
+  };
+
   return (
     <div>
-      {/* Navbar */}
+      {/* Existing Navbar and Greeting Section */}
       <div className="navbar-container">
-        <div className="left-stuff">
+      <div className="left-stuff">
           <Link to="/" className="logo-link">
             <img src={img} alt="GIG SUI" className="logo" />
           </Link>
@@ -59,7 +116,6 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Greeting Section */}
       <div className="greeting-wrapper">
         <div className="greeting-container">
           <div className="greeting-text">
@@ -72,6 +128,7 @@ const Home = () => {
           </div>
         </div>
       </div>
+
 
       {/* Job Cards Section */}
       <div className="job-cards-container">
@@ -86,7 +143,12 @@ const Home = () => {
               <div className="job-description">{job.description}</div>
               <div className="job-footer">
                 <div className="salary">$SUI {job.basePay}</div>
-                <button className="apply-btn">Apply Now</button>
+                <button 
+                  className="apply-btn"
+                  onClick={() => handleApplyClick(job)}
+                >
+                  Apply Now
+                </button>
               </div>
             </div>
           ))
@@ -94,6 +156,48 @@ const Home = () => {
           <p>No jobs available</p>
         )}
       </div>
+
+      {/* Job Application Modal */}
+      {selectedJob && (
+        <div className="application-modal">
+          <div className="application-modal-content">
+            <h2>Apply for {selectedJob.title}</h2>
+            <form onSubmit={handleSubmitApplication}>
+              <div className="form-group">
+                <label>Wallet Address</label>
+                <input
+                  type="text"
+                  name="walletAddress"
+                  value={applicationForm.walletAddress}
+                  onChange={handleInputChange}
+                  placeholder="Your Wallet Address"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Resume/CV</label>
+                <input
+                  type="file"
+                  name="resumeFile"
+                  onChange={handleInputChange}
+                  accept=".pdf,.doc,.docx"
+                  required
+                />
+              </div>
+              <div className="application-actions">
+                <button type="submit" className="submit-btn">Submit Application</button>
+                <button 
+                  type="button" 
+                  className="cancel-btn"
+                  onClick={() => setSelectedJob(null)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

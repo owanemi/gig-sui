@@ -3,14 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@mysten/sui": "^1.14.2",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@suiet/wallet-kit": "^0.3.3",
+    "axios": "^1.7.7",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.456.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-scripts": "5.0.1",
     "react-router-dom": "^6.28.0",
-    "axios": "^1.7.7",
-    "@mysten/sui": "^1.14.2",
-    "@suiet/wallet-kit": "^0.3.3",
-    "lucide-react": "^0.456.0"
+    "react-scripts": "5.0.1",
+    "tailwind-merge": "^2.5.4"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -35,5 +39,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "shadcn-ui": "^0.9.3"
   }
 }

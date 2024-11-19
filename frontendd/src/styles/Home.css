@@ -8,8 +8,20 @@
   font-family: "Nunito", serif;
 }
 
+.main-container {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 /* Navbar styles */
 .navbar-container {
+  width: 90%;
+  max-width: 1300px;
   margin: 20px auto;
   display: flex;
   justify-content: space-between;
@@ -18,12 +30,12 @@
   border-radius: 30px;
   background: white;
   height: 90px;
-  max-width: 1300px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .left-stuff {
   flex: 1;
+  min-width: 100px;
 }
 
 .middle-stuff {
@@ -31,6 +43,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-width: 300px;
 }
 
 .right-stuff {
@@ -38,6 +51,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 20px;
+  min-width: 150px;
 }
 
 .logo {
@@ -88,9 +102,9 @@
 
 /* Greeting Section Styles */
 .greeting-wrapper {
+  width: 90%;
   max-width: 1300px;
   margin: 40px auto;
-  padding: 0 20px;
 }
 
 .greeting-container {
@@ -114,12 +128,24 @@
 
 /* Job Cards Section */
 .job-cards-container {
+  width: 90%;
   max-width: 1300px;
   margin: 40px auto;
   padding: 0 20px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
+  min-height: 200px; /* Minimum height even when empty */
+}
+
+/* Empty state styles */
+.no-jobs-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  background: #f5f5f5;
+  border-radius: 15px;
+  color: #666;
 }
 
 .job-card {
@@ -182,11 +208,11 @@
   font-size: 18px;
   font-weight: 600;
   color: #4da2ff;
-  margin-right: 15px; /* Add spacing between salary and button */
+  margin-right: 15px;
 }
 
 .apply-btn {
-  min-width: 120px; /* Ensure consistent button width */
+  min-width: 120px;
   padding: 8px 20px;
   border: none;
   border-radius: 10px;
@@ -211,71 +237,7 @@
   padding: 10px;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .navbar-container {
-    margin: 10px 20px;
-  }
-  
-  .job-cards-container {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .middle-stuff {
-    display: none;
-  }
-
-  .mobile-menu-btn {
-    display: block;
-  }
-  
-  .navbar-container {
-    padding: 15px;
-    height: 70px;
-    margin: 10px;
-  }
-
-  .greeting-text h1 {
-    font-size: 28px;
-  }
-  
-  .greeting-text p {
-    font-size: 16px;
-  }
-  
-  .job-cards-container {
-    grid-template-columns: 1fr;
-  }
-
-  .logo {
-    height: 50px;
-  }
-}
-
-@media (max-width: 480px) {
-  .greeting-text h1 {
-    font-size: 24px;
-  }
-  
-  .job-card {
-    padding: 20px;
-  }
-  
-  .job-title {
-    font-size: 18px;
-  }
-
-  .right-stuff {
-    gap: 10px;
-  }
-
-  .wallet-address {
-    font-size: 12px;
-  }
-}
-
+/* Application Modal Styles */
 .application-modal {
   position: fixed;
   top: 0;
@@ -316,6 +278,7 @@
 .application-actions {
   display: flex;
   justify-content: space-between;
+  gap: 10px;
 }
 
 .submit-btn, .cancel-btn {
@@ -330,7 +293,85 @@
   color: white;
 }
 
+.submit-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
 .cancel-btn {
   background-color: #f44336;
   color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .navbar-container,
+  .greeting-wrapper,
+  .job-cards-container {
+    margin: 10px auto;
+  }
+  
+  .job-cards-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .middle-stuff {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+  
+  .navbar-container,
+  .greeting-wrapper,
+  .job-cards-container {
+    width: 95%;
+    margin: 10px auto;
+    padding: 15px;
+  }
+
+  .navbar-container {
+    height: 70px;
+  }
+
+  .greeting-text h1 {
+    font-size: 28px;
+  }
+  
+  .greeting-text p {
+    font-size: 16px;
+  }
+  
+  .job-cards-container {
+    grid-template-columns: 1fr;
+  }
+
+  .logo {
+    height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .greeting-text h1 {
+    font-size: 24px;
+  }
+  
+  .job-card {
+    padding: 20px;
+  }
+  
+  .job-title {
+    font-size: 18px;
+  }
+
+  .right-stuff {
+    gap: 10px;
+  }
+
+  .wallet-address {
+    font-size: 12px;
+  }
 }

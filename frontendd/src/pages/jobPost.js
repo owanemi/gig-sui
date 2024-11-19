@@ -1,14 +1,11 @@
+// JobPost.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Transaction } from '@mysten/sui/transactions';
-import { useWallet, useSuiClient } from '@suiet/wallet-kit';
+import { useWallet } from '@suiet/wallet-kit';
 import '../styles/JobPost.css';
-
-const MIST_PER_SUI = 1_000_000_000; // 1 SUI = 1 billion MIST
 
 const JobPost = () => {
   const wallet = useWallet();
-  const client = useSuiClient();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     jobTitle: '',
@@ -34,49 +31,7 @@ const JobPost = () => {
       return;
     }
 
-    if (!formData.basePay || Number(formData.basePay) <= 0) {
-      alert("Please enter a valid base pay amount");
-      return;
-    }
-
     try {
-      // Convert basePay to MIST (assuming basePay is in SUI)
-      const basePayNumber = parseFloat(formData.basePay);
-      const depositAmountMist = window.BigInt(Math.floor(basePayNumber * MIST_PER_SUI));
-      
-      if (depositAmountMist <= window.BigInt(0)) {
-        alert("Deposit amount must be greater than 0");
-        return;
-      }
-
-      // Create new transaction
-      const tx = new Transaction();
-      
-      // Set the sender's address
-      tx.setSender(wallet.account?.address);
-
-      // Split gas coin for deposit using the basePay amount
-      const [depositCoin] = tx.splitCoins(tx.gas, [depositAmountMist.toString()]);
-
-      // Transfer the deposit amount to the destination address
-      // Replace 'recipient_address_here' with your actual recipient address
-      tx.transferObjects([depositCoin], '0xc8ef1c69d448b8c373c6de6f7170b0dc4ab8804591601c77ac6d6d0aad9fb914');
-
-      // Sign and execute the transaction using custom execution
-      const resData = await wallet.signAndExecuteTransaction({
-        transaction: tx,
-        options: {
-          showEffects: true,
-          showObjectChanges: true,
-          showEvents: true,
-          showInput: true,
-          showRawInput: true,
-          showRawEffects: true,
-        },
-      });
-
-      console.log('Transaction successful:', resData);
-
       // Submit the job post data to your backend
       const response = await fetch('http://localhost:8080/api/jobs', {
         method: 'POST',
@@ -89,8 +44,6 @@ const JobPost = () => {
           location: formData.location,
           basePay: formData.basePay,
           description: formData.description,
-          transactionDigest: resData.digest,
-          depositAmount: formData.basePay,
         }),
       });
 
@@ -182,7 +135,7 @@ const JobPost = () => {
             className="submit-btn"
             disabled={!wallet.connected}
           >
-            {wallet.connected ? `Post Job (Deposit ${formData.basePay || '0'} SUI)` : 'Connect Wallet to Post'}
+            {wallet.connected ? 'Post Job' : 'Connect Wallet to Post'}
           </button>
         </form>
       </div>

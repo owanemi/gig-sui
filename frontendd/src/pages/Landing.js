@@ -24,8 +24,8 @@ function Navbar() {
         <a href="#faq-section" className={styles['nav-link']}>FAQ</a>
       </div>
       <div className={styles['right-stuff']}>
-        <button className={styles['login-btn']}>Login</button>
-        <button className={styles['register-btn']}>Register</button>
+        {/* <button className={styles['login-btn']}>Login</button> */}
+        {/* <button className={styles['register-btn']}>Register</button> */}
       </div>
     </div>
   );
@@ -61,8 +61,7 @@ function TeamSection() {
       </div>
       <div className={styles['team-cards-container']}>
         {[
-          { img: teamLead, name: 'Nsemo Anthony', role: 'Team Lead', twitter: '@chalcedonydrift' },
-          { img: commMan, name: 'Ebing-Osowo Ntun', role: 'Community Manager', twitter: '@NtunEbing' },
+          { img: commMan, name: 'Ebing-Osowo Ntun', role: 'Team Lead', twitter: '@NtunEbing' },
           { img: leadDev, name: 'Owanemi Osaye-William', role: 'Developer', twitter: '@owanemi_' },
           { img: techWriter, name: 'Obukinose Aghogho Mboutidem', role: 'Technical Writer', twitter: '@aghoghobukinose' },
           { img: graphicDesigner, name: 'Memena Emmanuel', role: 'Graphic Designer', twitter: '@iconic_gfx' },

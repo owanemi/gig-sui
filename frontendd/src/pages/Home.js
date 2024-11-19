@@ -34,12 +34,20 @@ const Home = () => {
       .catch(error => console.error('Error fetching job data:', error));
   }, []);
 
-  // Handle applying to a job
+  // Update wallet address when wallet connection changes
+  useEffect(() => {
+    if (wallet?.account?.address) {
+      setApplicationForm(prev => ({
+        ...prev,
+        walletAddress: wallet.account.address
+      }));
+    }
+  }, [wallet?.account]);
+
   const handleApplyClick = (job) => {
     setSelectedJob(job);
-    
     // Pre-fill wallet address if connected
-    if (wallet?.account) {
+    if (wallet?.account?.address) {
       setApplicationForm(prev => ({
         ...prev,
         walletAddress: wallet.account.address
@@ -47,7 +55,6 @@ const Home = () => {
     }
   };
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
     setApplicationForm(prev => ({
@@ -56,49 +63,61 @@ const Home = () => {
     }));
   };
 
-  // Submit job application
-  const handleSubmitApplication = (e) => {
+  const handleSubmitApplication = async (e) => {
     e.preventDefault();
     
-    // Create FormData to send file
+    if (!applicationForm.walletAddress) {
+      alert('Please connect your wallet or enter a wallet address');
+      return;
+    }
+
+    if (!selectedJob || !selectedJob.id) {
+      alert('Invalid job selection');
+      return;
+    }
+
+    // Create FormData object
     const formData = new FormData();
     formData.append('jobId', selectedJob.id);
-    formData.append('walletAddress', applicationForm.walletAddress);
+    formData.append('walletAddress', applicationForm.walletAddress.trim());
     formData.append('resumeFile', applicationForm.resumeFile);
 
-    // Log file details
-    console.log('Submitting application with file:', {
-        filename: applicationForm.resumeFile.name,
-        type: applicationForm.resumeFile.type,
-        size: applicationForm.resumeFile.size
+    // Log what we're sending
+    console.log('Submitting application:', {
+      jobId: selectedJob.id,
+      walletAddress: applicationForm.walletAddress,
+      resumeFile: applicationForm.resumeFile?.name
     });
 
-    // Send application to backend
-    fetch('http://localhost:8080/api/apply', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => {
+    try {
+      const response = await fetch('http://localhost:8080/api/apply', {
+        method: 'POST',
+        body: formData // Do not set Content-Type header - browser will set it with boundary
+      });
+
       if (!response.ok) {
-        // Log error response
-        return response.json().then(err => { throw err; });
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit application');
       }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Application submission response:', data);
+
+      const data = await response.json();
+      console.log('Application submission successful:', data);
       alert('Application submitted successfully!');
+      
+      // Reset form but keep wallet address if connected
+      setApplicationForm({
+        walletAddress: wallet?.account?.address || '',
+        resumeFile: null
+      });
       setSelectedJob(null);
-      setApplicationForm({ walletAddress: '', resumeFile: null });
-    })
-    .catch(error => {
+    } catch (error) {
       console.error('Error submitting application:', error);
-      alert('Failed to submit application');
-    });
-};
+      alert(error.message);
+    }
+  };
 
   return (
-    <div>
+    <div className='main-container'>
       {/* Existing Navbar and Greeting Section */}
       <div className="navbar-container">
       <div className="left-stuff">
@@ -140,12 +159,11 @@ const Home = () => {
         </div>
       </div>
 
-
       {/* Job Cards Section */}
       <div className="job-cards-container">
         {jobData.length > 0 ? (
-          jobData.map((job, index) => (
-            <div className="job-card" key={index}>
+          jobData.map((job) => (
+            <div className="job-card" key={job.id}>
               <div className="job-title">{job.title}</div>
               <div className="job-details">
                 <div className="job-type">{job.type}</div>
@@ -164,7 +182,10 @@ const Home = () => {
             </div>
           ))
         ) : (
-          <p>No jobs available</p>
+          <div className="no-jobs-message">
+            <h3>No Jobs Available</h3>
+            <p>Check back later for new opportunities</p>
+        </div>
         )}
       </div>
 
@@ -175,18 +196,26 @@ const Home = () => {
             <h2>Apply for {selectedJob.title}</h2>
             <form onSubmit={handleSubmitApplication}>
               <div className="form-group">
-                <label>Wallet Address</label>
-                <input
-                  type="text"
-                  name="walletAddress"
-                  value={applicationForm.walletAddress}
-                  onChange={handleInputChange}
-                  placeholder="Your Wallet Address"
-                  required
-                />
+                <label>Wallet Address *</label>
+                <div className="wallet-input-container">
+                  <input
+                    type="text"
+                    name="walletAddress"
+                    value={applicationForm.walletAddress}
+                    onChange={handleInputChange}
+                    placeholder="Your Wallet Address"
+                    required
+                    className={!applicationForm.walletAddress ? 'error' : ''}
+                  />
+                  {!wallet?.account && (
+                    <p className="wallet-warning">
+                      Connect wallet or enter address manually
+                    </p>
+                  )}
+                </div>
               </div>
               <div className="form-group">
-                <label>Resume/CV</label>
+                <label>Resume/CV *</label>
                 <input
                   type="file"
                   name="resumeFile"
@@ -196,7 +225,13 @@ const Home = () => {
                 />
               </div>
               <div className="application-actions">
-                <button type="submit" className="submit-btn">Submit Application</button>
+                <button 
+                  type="submit" 
+                  className="submit-btn"
+                  disabled={!applicationForm.walletAddress}
+                >
+                  Submit Application
+                </button>
                 <button 
                   type="button" 
                   className="cancel-btn"

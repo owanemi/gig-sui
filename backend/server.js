@@ -3,18 +3,16 @@ const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
-const multer = require('multer'); // Add multer for file uploads
+const multer = require('multer');
 const fs = require('fs');
 
 const app = express();
-const port = 8080;  // Port set to 8080 as per your original configuration
+const port = 8080;
 
-// Enable CORS for the frontend at localhost:3000
 app.use(cors({
-  origin: 'http://localhost:3000', // Allow only requests from this origin
+  origin: 'http://localhost:3000',
 }));
 
-// Create and connect to SQLite database
 const db = new sqlite3.Database(path.join(__dirname, 'jobdb.sqlite'), (err) => {
     if (err) {
         console.error('Error connecting to SQLite database:', err);
@@ -23,22 +21,16 @@ const db = new sqlite3.Database(path.join(__dirname, 'jobdb.sqlite'), (err) => {
     }
 });
 
-// Middleware to parse JSON bodies
 app.use(bodyParser.json());
-
-// Serve static files (frontend HTML, JS, CSS, etc.)
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = path.join(__dirname, 'uploads', 'resumes');
-        // Ensure directory exists
         fs.mkdirSync(uploadDir, { recursive: true });
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
-        // Generate a unique filename
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
@@ -47,10 +39,9 @@ const storage = multer.diskStorage({
 const upload = multer({ 
     storage: storage,
     limits: { 
-        fileSize: 5 * 1024 * 1024 // 5MB file size limit
+        fileSize: 5 * 1024 * 1024
     },
     fileFilter: (req, file, cb) => {
-        // Allow only certain file types
         const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
         if (allowedTypes.includes(file.mimetype)) {
             cb(null, true);
@@ -60,57 +51,50 @@ const upload = multer({
     }
 });
 
-// Create the users table if it doesn't exist
-db.run(`CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    walletAddress TEXT
-)`);
+db.serialize(() => {
+    db.run(`CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        walletAddress TEXT
+    )`);
 
-// Create the jobs table if it doesn't exist
-db.run(`CREATE TABLE IF NOT EXISTS jobs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT,
-    type TEXT,
-    location TEXT,
-    basePay INTEGER,
-    description TEXT
-)`);
+    db.run(`CREATE TABLE IF NOT EXISTS jobs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        type TEXT,
+        location TEXT,
+        basePay DECIMAL(10,2),
+        description TEXT
+    )`);
 
-// Create the job_applications table if it doesn't exist
-db.run(`CREATE TABLE IF NOT EXISTS job_applications (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    job_id INTEGER,
-    wallet_address TEXT,
-    resume_path TEXT,
-    application_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(job_id) REFERENCES jobs(id)
-)`);
+    db.run(`CREATE TABLE IF NOT EXISTS job_applications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        job_id INTEGER,
+        wallet_address TEXT,
+        resume_path TEXT,
+        basePay DECIMAL(10,2),
+        application_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(job_id) REFERENCES jobs(id)
+    )`);
+});
 
-// POST endpoint to add a new user (for login)
+// User routes
 app.post('/api/users', (req, res) => {
     const { name, walletAddress } = req.body;
-
     if (!name || !walletAddress) {
         return res.status(400).json({ error: 'Name and wallet address are required' });
     }
 
-    const stmt = db.prepare(`
-        INSERT INTO users (name, walletAddress)
-        VALUES (?, ?)
-    `);
-
+    const stmt = db.prepare('INSERT INTO users (name, walletAddress) VALUES (?, ?)');
     stmt.run(name, walletAddress, function(err) {
         if (err) {
             return res.status(500).json({ error: 'Failed to save user data' });
         }
         res.status(200).json({ id: this.lastID, name, walletAddress });
     });
-
     stmt.finalize();
 });
 
-// GET endpoint to fetch all users
 app.get('/api/users', (req, res) => {
     db.all('SELECT * FROM users ORDER BY id DESC', [], (err, rows) => {
         if (err) {
@@ -120,11 +104,9 @@ app.get('/api/users', (req, res) => {
     });
 });
 
-// POST endpoint to add a new job
+// Job routes
 app.post('/api/jobs', (req, res) => {
     const { title, type, location, basePay, description } = req.body;
-
-    // Check if all data is provided
     if (!title || !type || !location || !basePay || !description) {
         return res.status(400).json({ error: 'All job details are required' });
     }
@@ -140,11 +122,9 @@ app.post('/api/jobs', (req, res) => {
         }
         res.status(200).json({ id: this.lastID, title, type, location, basePay, description });
     });
-
     stmt.finalize();
 });
 
-// GET endpoint to fetch all jobs
 app.get('/api/jobs', (req, res) => {
     db.all('SELECT * FROM jobs ORDER BY id DESC', [], (err, rows) => {
         if (err) {
@@ -154,23 +134,15 @@ app.get('/api/jobs', (req, res) => {
     });
 });
 
-// NEW ENDPOINT: Job Application Submission
+// Application routes
 app.post('/api/apply', upload.single('resumeFile'), (req, res) => {
     const { jobId, walletAddress } = req.body;
     const resumeFile = req.file;
 
-    console.log('Uploaded resume file details:', {
-        originalname: resumeFile.originalname,
-        filename: resumeFile.filename,
-        path: resumeFile.path
-    });
-
-    // Validate input
     if (!jobId || !walletAddress || !resumeFile) {
         return res.status(400).json({ error: 'Job ID, wallet address, and resume are required' });
     }
 
-    // Check if the job exists
     db.get('SELECT * FROM jobs WHERE id = ?', [jobId], (err, job) => {
         if (err) {
             return res.status(500).json({ error: 'Error checking job existence' });
@@ -180,15 +152,14 @@ app.post('/api/apply', upload.single('resumeFile'), (req, res) => {
             return res.status(404).json({ error: 'Job not found' });
         }
 
-        // Insert application into database
         const stmt = db.prepare(`
-            INSERT INTO job_applications (job_id, wallet_address, resume_path)
-            VALUES (?, ?, ?)
+            INSERT INTO job_applications (job_id, wallet_address, resume_path, basePay)
+            VALUES (?, ?, ?, ?)
         `);
 
-        stmt.run(jobId, walletAddress, resumeFile.path, function(err) {
+        stmt.run(jobId, walletAddress, path.basename(resumeFile.path), job.basePay, function(err) {
             if (err) {
-                // If insertion fails, delete the uploaded file
+                console.error('Database insertion error:', err);
                 fs.unlinkSync(resumeFile.path);
                 return res.status(500).json({ error: 'Failed to save application' });
             }
@@ -198,15 +169,12 @@ app.post('/api/apply', upload.single('resumeFile'), (req, res) => {
                 applicationId: this.lastID 
             });
         });
-
         stmt.finalize();
     });
 });
 
-// NEW ENDPOINT: Fetch Job Applications (for admin/employer use)
-app.get('/api/applications/:walletAddress', (req, res) => {
-    const { walletAddress } = req.params;
-
+// Fetch all job applications
+app.get('/api/applications', (req, res) => {
     db.all(`
         SELECT 
             ja.id, 
@@ -214,52 +182,14 @@ app.get('/api/applications/:walletAddress', (req, res) => {
             ja.wallet_address, 
             ja.resume_path, 
             ja.application_date,
+            ja.basePay as base_pay, 
             j.title AS job_title,
             j.type AS job_type,
             j.location AS job_location
         FROM job_applications ja
         JOIN jobs j ON ja.job_id = j.id
-        WHERE ja.wallet_address = ?
         ORDER BY ja.application_date DESC
-    `, [walletAddress], (err, rows) => {
-        if (err) {
-            return res.status(500).json({ error: 'Failed to fetch applications' });
-        }
-        
-        // Log the rows to see the exact resume_path
-        console.log('Applications retrieved:', rows);
-        
-        res.json(rows);
-    });
-});
-
-// Serve uploaded resumes (optional, for admin preview)
-app.get('/uploads/resumes/:filename', (req, res) => {
-    const filePath = path.join(__dirname, 'uploads', 'resumes', req.params.filename);
-    res.download(filePath);
-});
-
-// Add this to your existing server.js file
-
-// NEW ENDPOINT: Get Job Applications for a Specific Wallet Address
-app.get('/api/applications/:walletAddress', (req, res) => {
-    const { walletAddress } = req.params;
-
-    db.all(`
-        SELECT 
-            ja.id, 
-            ja.job_id, 
-            ja.wallet_address, 
-            ja.resume_path, 
-            ja.application_date,
-            j.title AS job_title,
-            j.type AS job_type,
-            j.location AS job_location
-        FROM job_applications ja
-        JOIN jobs j ON ja.job_id = j.id
-        WHERE ja.wallet_address = ?
-        ORDER BY ja.application_date DESC
-    `, [walletAddress], (err, rows) => {
+    `, [], (err, rows) => {
         if (err) {
             return res.status(500).json({ error: 'Failed to fetch applications' });
         }
@@ -267,33 +197,63 @@ app.get('/api/applications/:walletAddress', (req, res) => {
     });
 });
 
-// Endpoint to download a specific resume
+
+// Fetch resume by filename
 app.get('/api/resume/:filename', (req, res) => {
     const { filename } = req.params;
-
-    // Construct full path dynamically
     const filePath = path.join(__dirname, 'uploads', 'resumes', filename);
+    console.log(`Resolved file path: ${filePath}`);
 
-    console.log('File requested:', filePath); // Debugging
 
     fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
-            console.error('File not found:', filePath);
+            console.error(`Resume not found at path: ${filePath}`);
             return res.status(404).json({ error: 'Resume not found' });
         }
 
         res.download(filePath, filename, (err) => {
             if (err) {
-                console.error('Error during download:', err);
                 res.status(500).json({ error: 'Error downloading resume' });
             }
         });
     });
 });
 
+// Handle applicant payment logic (assuming you want to use the basePay here)
+app.post('/api/pay-applicant', async (req, res) => {
+    const { jobId, recipientWallet } = req.body;
 
+    if (!jobId || !recipientWallet) {
+        return res.status(400).json({ error: 'Job ID and recipient wallet address are required' });
+    }
 
-// Start the server
+    try {
+        // Fetch job details including basePay
+        db.get('SELECT * FROM jobs WHERE id = ?', [jobId], async (err, job) => {
+            if (err) {
+                return res.status(500).json({ error: 'Error fetching job details' });
+            }
+
+            if (!job) {
+                return res.status(404).json({ error: 'Job not found' });
+            }
+
+            const { basePay } = job;
+
+            // Example payment processing logic (replace with actual payment handling)
+            console.log(`Processing payment of ${basePay} to ${recipientWallet}`);
+
+            // Here you would integrate your payment gateway logic (e.g., using Sui SDK)
+
+            // Respond with success
+            res.status(200).json({ message: 'Payment processed successfully', amount: basePay, recipient: recipientWallet });
+        });
+    } catch (error) {
+        console.error('Error during payment processing:', error);
+        res.status(500).json({ error: 'Failed to process payment' });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

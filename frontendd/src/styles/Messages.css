@@ -1,59 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
 .messages-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-  }
-  
-  .applications-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .application-card {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+  width: 90%;
+  max-width: 1300px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: "Nunito", serif;
+}
+
+.messages-container h1 {
+  font-size: 32px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 30px;
+  background: linear-gradient(45deg, #4da2ff, #577dff);
+  padding: 30px;
+  border-radius: 20px;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.applications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.application-card {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+}
+
+.application-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(77, 162, 255, 0.2);
+}
+
+.application-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.application-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.application-date {
+  color: #666;
+  font-size: 14px;
+  background: #f5f5f5;
+  padding: 5px 12px;
+  border-radius: 8px;
+}
+
+.application-details {
+  margin-bottom: 25px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.application-details p {
+  margin: 0;
+  color: #666;
+  font-size: 15px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.application-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.download-resume-btn, .pay-btn {
+  min-width: 120px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  font-size: 14px;
+}
+
+.download-resume-btn {
+  background: #f8f9fa;
+  color: #577dff;
+  border: 1px solid #577dff;
+}
+
+.pay-btn {
+  background: linear-gradient(45deg, #4da2ff, #577dff);
+  color: white;
+}
+
+.download-resume-btn:hover, .pay-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(77, 162, 255, 0.2);
+}
+
+/* Loading and Error States */
+.messages-container > p {
+  text-align: center;
+  padding: 40px;
+  background: #f5f5f5;
+  border-radius: 15px;
+  color: #666;
+  font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .messages-container {
+    width: 95%;
     padding: 15px;
-    background-color: #f9f9f9;
   }
-  
+
+  .messages-container h1 {
+    font-size: 28px;
+    padding: 20px;
+  }
+
   .application-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
-  
-  .application-header h2 {
-    margin: 0;
-    color: #333;
-  }
-  
-  .application-date {
-    color: #666;
-    font-size: 0.9em;
-  }
-  
+
   .application-details {
-    margin-bottom: 15px;
+    grid-template-columns: 1fr;
   }
-  
+
   .application-actions {
-    display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
   }
-  
-  .download-resume-btn {
-    background-color: #4da2ff;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+
+  .download-resume-btn, .pay-btn {
+    width: 100%;
   }
-  
-  .download-resume-btn:hover {
-    background-color:#4da2ff;
+}
+
+@media (max-width: 480px) {
+  .messages-container h1 {
+    font-size: 24px;
+    padding: 15px;
   }
+
+  .application-card {
+    padding: 15px;
+  }
+
+  .application-header h2 {
+    font-size: 20px;
+  }
+}

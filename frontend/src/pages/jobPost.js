@@ -1,31 +1,64 @@
 // JobPost.js
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useWallet } from '@suiet/wallet-kit';
-import '../styles/JobPost.css';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useWallet } from "@suiet/wallet-kit";
+import "../styles/JobPost.css";
+import { Transaction } from "@mysten/sui/transactions";
+
+const nftMintAddress = "0x5ea6aafe995ce6506f07335a40942024106a57f6311cb341239abf2c3ac7b82f::nft::mint";
+const imageLink = "https://xc6fbqjny4wfkgukliockypoutzhcqwjmlw2gigombpp2ynufaxa.arweave.net/uLxQwS3HLFUailocJWHupPJxQsli7aMgzmBe_WG0KC4";
 
 const JobPost = () => {
   const wallet = useWallet();
+  // const client = useSuiClient();
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    jobTitle: '',
-    jobType: 'Full Time',
-    location: 'Remote',
-    basePay: '',
-    description: '',
+    jobTitle: "",
+    jobType: "Full Time",
+    location: "Remote",
+    basePay: "",
+    description: "",
   });
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
       [id]: value,
     }));
   };
 
+  const createMintNftTxb = () => {
+    const tx = new Transaction();
+    tx.moveCall({
+      target: nftMintAddress,
+      arguments: [
+        tx.pure.string(formData.jobTitle), // Job title
+        tx.pure.string(formData.description), // Job description
+        tx.pure.string(imageLink), // Fixed image URL
+      ],
+    });
+    return tx;
+  };
+
+  const mintNFT = async () => {
+    try {
+      const tx = createMintNftTxb();
+      const response = await wallet.signAndExecuteTransaction({
+        transaction: tx,
+      });
+      console.log("NFT Minted successfully:", response);
+      alert("NFT Minted successfully! 🎉");
+    } catch (error) {
+      console.error("Error minting NFT:", error);
+      alert("Failed to mint NFT. Please check the console for more details.");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!wallet.connected) {
       alert("Please connect your wallet first!");
       return;
@@ -33,10 +66,10 @@ const JobPost = () => {
 
     try {
       // Submit the job post data to your backend
-      const response = await fetch('http://localhost:8080/api/jobs', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8080/api/jobs", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           title: formData.jobTitle,
@@ -48,11 +81,15 @@ const JobPost = () => {
       });
 
       const data = await response.json();
-      console.log('Job post created:', data);
-      navigate('/home');
+      console.log("Job post created:", data);
+
+      // Call the mint function after successfully adding the job to the database
+      await mintNFT();
+
+      navigate("/home");
     } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to post job. Please try again.');
+      console.error("Error:", error);
+      alert("Failed to post job. Please try again.");
     }
   };
 
@@ -130,12 +167,12 @@ const JobPost = () => {
             ></textarea>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="submit-btn"
             disabled={!wallet.connected}
           >
-            {wallet.connected ? 'Post Job' : 'Connect Wallet to Post'}
+            {wallet.connected ? "Post Job" : "Connect Wallet to Post"}
           </button>
         </form>
       </div>

@@ -4,9 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { useWallet } from "@suiet/wallet-kit";
 import "../styles/JobPost.css";
 import { Transaction } from "@mysten/sui/transactions";
+// import { ObjectID } from "@mysten/sui/dist/cjs/transactions/data/internal";
 
-const nftMintAddress = "0x5ea6aafe995ce6506f07335a40942024106a57f6311cb341239abf2c3ac7b82f::nft::mint";
-const imageLink = "https://xc6fbqjny4wfkgukliockypoutzhcqwjmlw2gigombpp2ynufaxa.arweave.net/uLxQwS3HLFUailocJWHupPJxQsli7aMgzmBe_WG0KC4";
+const nftMintAddress = "0xc42c3c618d7485d2fc58621c85129022c80ac8a06f09e9a4bd0095f4bd9bc6ab";
+const imageLink = ".arweave.net/uLxQwS3HLFUailocJWHupPJxQsli7aMgzmBe_WG0KC4";
 
 const JobPost = () => {
   const wallet = useWallet();
@@ -47,9 +48,12 @@ const JobPost = () => {
       const tx = createMintNftTxb();
       const response = await wallet.signAndExecuteTransaction({
         transaction: tx,
+        options: {
+          showObjectChanges: true,
+        },
       });
-      console.log("NFT Minted successfully:", response);
-      alert("NFT Minted successfully! 🎉");
+
+
     } catch (error) {
       console.error("Error minting NFT:", error);
       alert("Failed to mint NFT. Please check the console for more details.");

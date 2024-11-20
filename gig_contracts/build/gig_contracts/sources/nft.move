@@ -42,14 +42,16 @@ module gig_contracts::nft {
         transfer::public_transfer(display, tx_context::sender(arg1));
     }
 
-    public entry fun mint(name: String, description: String, img_url: String, ctx: &mut TxContext) {
+    public entry fun mint(name: String, description: String, img_url: String, ctx: &mut TxContext): ID {
         let nft = Nft {
             id: object::new(ctx),
             name: name,
             description: description,
             img_url: img_url,
         };
+        let nft_id = object::id(&nft);
         transfer::public_transfer(nft, tx_context::sender(ctx));
+        nft_id
     }
 
     public entry fun transfer(nft: Nft, recipient: address, _: &mut TxContext) {

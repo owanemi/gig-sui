@@ -10,7 +10,7 @@ const app = express();
 const port = 8080;
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://gig-sui.vercel.app']
+  origin: ['http://localhost:3000', 'https://gig-sui.vercel.app']
 }));
 
 const db = new sqlite3.Database(path.join(__dirname, 'jobdb.sqlite'), (err) => {

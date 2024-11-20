@@ -17,7 +17,7 @@ const Messages = () => {
   }, []);
 
   const fetchApplications = () => {
-    fetch('http://localhost:8080/api/applications')
+    fetch('https://gig-sui.onrender.com/api/applications')
       .then(response => {
         if (!response.ok) {
           throw new Error('Failed to fetch applications');
@@ -84,7 +84,7 @@ const Messages = () => {
   };
 
   const handleDownloadResume = (filename) => {
-    const downloadUrl = `http://localhost:8080/api/resume/${filename}`;
+    const downloadUrl = `https://gig-sui.onrender.com/api/resume/${filename}`;
     fetch(downloadUrl)
         .then((response) => {
             if (!response.ok) {

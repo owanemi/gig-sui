@@ -66,7 +66,7 @@ const JobPost = () => {
 
     try {
       // Submit the job post data to your backend
-      const response = await fetch("http://localhost:8080/api/jobs", {
+      const response = await fetch("https://gig-sui.onrender.com/api/jobs", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

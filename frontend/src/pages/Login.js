@@ -20,7 +20,7 @@ function Login() {
     }
 
     try {
-      const response = await axios.post('https://gig-sui.onrender.com/api/users', {
+      const response = await axios.post('http://localhost:8080/api/users', {
         name: name,
         walletAddress: account.address
       });

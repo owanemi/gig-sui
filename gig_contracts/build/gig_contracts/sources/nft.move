@@ -4,6 +4,7 @@ module gig_contracts::nft {
     use std::string::{Self, String, utf8};
     use sui::tx_context::{Self, TxContext};
     use sui::package;
+    use sui::event;
     use sui::display;
     use sui::transfer;
 
@@ -17,6 +18,13 @@ module gig_contracts::nft {
     public struct NFT has drop {
         dummy_field: bool,
     }
+
+    public struct NFTMinted has copy, drop {
+        object_id: ID,
+        creator: address,
+        name: string::String,
+    }
+
 
     fun init(arg0: NFT, arg1: &mut TxContext) {
         let keys = vector[
@@ -42,16 +50,20 @@ module gig_contracts::nft {
         transfer::public_transfer(display, tx_context::sender(arg1));
     }
 
-    public entry fun mint(name: String, description: String, img_url: String, ctx: &mut TxContext): ID {
+    public entry fun mint(name: String, description: String, img_url: String, recipient: address, ctx: &mut TxContext) {
         let nft = Nft {
             id: object::new(ctx),
             name: name,
             description: description,
             img_url: img_url,
         };
-        let nft_id = object::id(&nft);
-        transfer::public_transfer(nft, tx_context::sender(ctx));
-        nft_id
+
+        event::emit(NFTMinted {
+            object_id: object::id(&nft),
+            creator: tx_context::sender(ctx),
+            name: name,
+        });
+        transfer::public_transfer(nft, recipient);
     }
 
     public entry fun transfer(nft: Nft, recipient: address, _: &mut TxContext) {

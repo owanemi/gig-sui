@@ -28,7 +28,7 @@ const Home = () => {
     }
 
     // Fetch job posts from the backend
-    fetch('https://gig-sui.onrender.com/api/jobs')
+    fetch('http://localhost:8080/api/jobs')
       .then(response => response.json())
       .then(data => setJobData(data))
       .catch(error => console.error('Error fetching job data:', error));
@@ -90,7 +90,7 @@ const Home = () => {
     });
 
     try {
-      const response = await fetch('https://gig-sui.onrender.com/api/apply', {
+      const response = await fetch('http://localhost:8080/api/apply', {
         method: 'POST',
         body: formData // Do not set Content-Type header - browser will set it with boundary
       });

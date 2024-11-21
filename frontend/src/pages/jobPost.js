@@ -4,10 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useWallet } from "@suiet/wallet-kit";
 import "../styles/JobPost.css";
 import { Transaction } from "@mysten/sui/transactions";
-// import { ObjectID } from "@mysten/sui/dist/cjs/transactions/data/internal";
 
-const nftMintAddress = "0xc42c3c618d7485d2fc58621c85129022c80ac8a06f09e9a4bd0095f4bd9bc6ab";
-const imageLink = ".arweave.net/uLxQwS3HLFUailocJWHupPJxQsli7aMgzmBe_WG0KC4";
+const nftMintAddress = "0x45c2633c44d98dc7b46b3fbd6591c079ff0eb50809337ddf22d16914488376c4::nft::mint";
+const imageLink = "https://.arweave.net/uLxQwS3HLFUailocJWHupPJxQsli7aMgzmBe_WG0KC4";
 
 const JobPost = () => {
   const wallet = useWallet();
@@ -50,9 +49,14 @@ const JobPost = () => {
         transaction: tx,
         options: {
           showObjectChanges: true,
+          showEffects: true
         },
       });
 
+       // onSuccess callback logic
+
+        console.log(`Minted NFT Object ID: ${response}`);
+        alert("Job Minted successfully! 🎉");
 
     } catch (error) {
       console.error("Error minting NFT:", error);
@@ -70,7 +74,7 @@ const JobPost = () => {
 
     try {
       // Submit the job post data to your backend
-      const response = await fetch("https://gig-sui.onrender.com/api/jobs", {
+      const response = await fetch("http://localhost:8080/api/jobs", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -88,7 +92,7 @@ const JobPost = () => {
       console.log("Job post created:", data);
 
       // Call the mint function after successfully adding the job to the database
-      await mintNFT();
+      // await mintNFT();
 
       navigate("/home");
     } catch (error) {

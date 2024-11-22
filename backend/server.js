@@ -139,9 +139,14 @@ app.post('/api/apply', upload.single('resumeFile'), (req, res) => {
     const { jobId, walletAddress } = req.body;
     const resumeFile = req.file;
 
-    if (!jobId || !walletAddress || !resumeFile) {
-        return res.status(400).json({ error: 'Job ID, wallet address, and resume are required' });
+    // if (!jobId || !walletAddress || !resumeFile) {
+    //     return res.status(400).json({ error: 'Job ID, wallet address, and resume are required' });
+    // }
+
+    if (!resumeFile || !fs.existsSync(resumeFile.path)) {
+        return res.status(500).json({ error: 'Error saving uploaded file' });
     }
+    
 
     db.get('SELECT * FROM jobs WHERE id = ?', [jobId], (err, job) => {
         if (err) {
@@ -151,6 +156,14 @@ app.post('/api/apply', upload.single('resumeFile'), (req, res) => {
         if (!job) {
             return res.status(404).json({ error: 'Job not found' });
         }
+        const stats = fs.statSync(resumeFile.path);
+        console.log(`Uploaded file size: ${stats.size} bytes`);
+    
+        if (stats.size === 0) {
+            fs.unlinkSync(resumeFile.path); // Delete the corrupted file
+            return res.status(500).json({ error: 'Uploaded file is empty' });
+        }
+    
 
         const stmt = db.prepare(`
             INSERT INTO job_applications (job_id, wallet_address, resume_path, basePay)
@@ -174,8 +187,9 @@ app.post('/api/apply', upload.single('resumeFile'), (req, res) => {
 });
 
 // Fetch all job applications
+// Updated applications route with better error handling
 app.get('/api/applications', (req, res) => {
-    db.all(`
+    const query = `
         SELECT 
             ja.id, 
             ja.job_id, 
@@ -185,39 +199,78 @@ app.get('/api/applications', (req, res) => {
             ja.basePay as base_pay, 
             j.title AS job_title,
             j.type AS job_type,
-            j.location AS job_location
+            j.location AS job_location,
+            COALESCE(j.description, '') AS description
         FROM job_applications ja
-        JOIN jobs j ON ja.job_id = j.id
+        LEFT JOIN jobs j ON ja.job_id = j.id
         ORDER BY ja.application_date DESC
-    `, [], (err, rows) => {
+    `;
+
+    db.all(query, [], (err, rows) => {
         if (err) {
-            return res.status(500).json({ error: 'Failed to fetch applications' });
+            console.error('Database error:', err);
+            return res.status(500).json({ 
+                error: 'Failed to fetch applications',
+                details: process.env.NODE_ENV === 'development' ? err.message : undefined
+            });
         }
-        res.json(rows);
+
+        // Add some logging to help debug
+        console.log('Successfully fetched applications:', rows.length);
+        
+        try {
+            // Transform the rows to ensure all necessary fields exist
+            const safeRows = rows.map(row => ({
+                id: row.id,
+                job_id: row.job_id,
+                wallet_address: row.wallet_address || '',
+                resume_path: row.resume_path || '',
+                application_date: row.application_date,
+                base_pay: row.base_pay || 0,
+                job_title: row.job_title || '',
+                job_type: row.job_type || '',
+                job_location: row.job_location || '',
+                description: row.description || ''
+            }));
+
+            res.json(safeRows);
+        } catch (error) {
+            console.error('Error processing rows:', error);
+            res.status(500).json({ 
+                error: 'Error processing application data',
+                details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            });
+        }
     });
 });
 
 
 // Fetch resume by filename
 app.get('/api/resume/:filename', (req, res) => {
-    const { filename } = req.params;
-    const filePath = path.join(__dirname, 'uploads', 'resumes', filename);
-    console.log(`Resolved file path: ${filePath}`);
+    const fileName = req.query.fileName;
+    const filePath = path.join(__dirname, 'uploads', 'resumes', fileName);
 
+    console.log('File path for download:', filePath);
 
-    fs.access(filePath, fs.constants.F_OK, (err) => {
-        if (err) {
-            console.error(`Resume not found at path: ${filePath}`);
-            return res.status(404).json({ error: 'Resume not found' });
-        }
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: 'File not found' });
+    }
 
-        res.download(filePath, filename, (err) => {
-            if (err) {
-                res.status(500).json({ error: 'Error downloading resume' });
-            }
-        });
+    const fileStream = fs.createReadStream(filePath);
+
+    // Stream the file to the client
+    fileStream.on('open', () => {
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        fileStream.pipe(res);
+    });
+
+    fileStream.on('error', (err) => {
+        console.error('Stream error:', err);
+        res.status(500).json({ error: 'Failed to stream file' });
     });
 });
+
 
 // Handle applicant payment logic (assuming you want to use the basePay here)
 app.post('/api/pay-applicant', async (req, res) => {

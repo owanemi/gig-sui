@@ -46,7 +46,7 @@ const Messages = () => {
 
     const requiredFields = {
       job_title: application.job_title,
-      description: application.description || `${application.job_type} position at ${application.job_location}`, // Fallback for description
+      description: application.description , // Fallback for description
       image_url: "https://gold-developing-iguana-528.mypinata.cloud/ipfs/QmQDhJLqVKWQHR1hMTB5YJ1k1BFcKNjEbAQntSB7AeNLoA", // Fallback image URL
       wallet_address: application.wallet_address
     };
